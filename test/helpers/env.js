@@ -1,8 +1,7 @@
 "use strict";
 
 var path = require('path')
-  , _ = require('underscore')
-  , os = require('os');
+  , localIp = require('appium-support').util.localIp;
 
 var env = {};
 
@@ -72,6 +71,8 @@ function iphoneOrIpadSimulator(device, version) {
     case '8.3':
       return isIpad ? 'iPad 2' : 'iPhone 6';
     case '8.4':
+      return isIpad ? 'iPad 2' : 'iPhone 6';
+    case '9.0':
       return isIpad ? 'iPad 2' : 'iPhone 6';
     default:
       throw new Error("invalid version");
@@ -153,6 +154,15 @@ switch (env.DEVICE) {
     , app: process.env.APP ? path.resolve(__dirname, "../../sample-code/apps/" + process.env.APP + "/build/Release-iphonesimulator/" + process.env.APP + ".app") : ''
     };
     break;
+  case 'ios9':
+  case 'ios9_iphone':
+  case 'ios9_ipad':
+    env.CAPS = {
+      browserName: ''
+    , deviceName: iphoneOrIpadSimulator(env.DEVICE, "9.0")
+    , app: process.env.APP ? path.resolve(__dirname, "../../sample-code/apps/" + process.env.APP + "/build/Release-iphonesimulator/" + process.env.APP + ".app") : ''
+    };
+    break;
   case 'android':
     env.CAPS = {
       browserName: ''
@@ -192,12 +202,13 @@ env.IOS81 = env.DEVICE.match(/ios81/i);
 env.IOS82 = env.DEVICE.match(/ios82/i);
 env.IOS83 = env.DEVICE.match(/ios83/i);
 env.IOS84 = env.DEVICE.match(/ios84/i);
+env.IOS9 = env.DEVICE.match(/ios9/i);
 env.ANDROID = env.DEVICE.match(/android/i);
 env.SELENDROID = env.DEVICE.match(/selendroid/i);
 
 // better timeout settings for 71
 env.LAUNCH_TIMEOUT =  process.env.LAUNCH_TIMEOUT ? JSON.parse(process.env.LAUNCH_TIMEOUT) :
-  ((env.IOS71 || env.IOS8) ? {"global": 60000, "afterSimLaunch": 10000} : 60000);
+  ((env.IOS71 || env.IOS8 || env.IOS9) ? {"global": 60000, "afterSimLaunch": 10000} : 60000);
 
 env.CAPS.launchTimeout = env.LAUNCH_TIMEOUT;
 
@@ -231,6 +242,8 @@ if (env.VERSION) {
   env.CAPS.platformVersion = "8.4";
 } else if (env.IOS8) {
   env.CAPS.platformVersion = "8.0";
+} else if (env.IOS9) {
+  env.CAPS.platformVersion = "9.0";
 }
 
 // max retry
@@ -251,24 +264,15 @@ if (env.SAUCE && env.TARBALL) {
   env.CAPS.tags = [env.DEVICE];
 }
 
-// rest enf points
-env.localIP = function () {
-  var ip = _.chain(os.networkInterfaces())
-    .values()
-    .flatten()
-    .filter(function (val) {
-      return (val.family === 'IPv4' && val.internal === false);
-    })
-    .pluck('address')
-    .first().value();
-  return ip;
-};
-
 env.LOCAL_APPIUM_PORT = env.SAUCE ? 4443 : env.APPIUM_PORT;
-env.TEST_END_POINT = 'http://localhost:' + env.LOCAL_APPIUM_PORT + '/test/';
+if (env.REAL_DEVICE) {
+  env.TEST_END_POINT = 'http://' + localIp() + ':' + env.LOCAL_APPIUM_PORT + '/test/';
+} else {
+  env.TEST_END_POINT = 'http://localhost:' + env.LOCAL_APPIUM_PORT + '/test/';
+}
 env.GUINEA_TEST_END_POINT = env.TEST_END_POINT + 'guinea-pig';
 if (env.REAL_DEVICE) {
-  env.CHROME_TEST_END_POINT = 'http://' + env.localIP() + ':' + env.LOCAL_APPIUM_PORT + '/test/';
+  env.CHROME_TEST_END_POINT = 'http://' + localIp() + ':' + env.LOCAL_APPIUM_PORT + '/test/';
 } else {
   env.CHROME_TEST_END_POINT = 'http://10.0.2.2:' + env.LOCAL_APPIUM_PORT + '/test/';
 }

@@ -75,7 +75,7 @@ describe('testapp - location - 3 @skip-ci', function () {
 });
 
 // TODO: location tests are not working well on sauce
-describe('testapp - location - 4 @skip-ci', function () {
+describe('testapp - location - 4 @skip-ci @skip-real-device', function () {
   var driver;
   var newDesired = _.clone(desired);
   _.extend(newDesired, {
@@ -101,7 +101,7 @@ describe('testapp - location - 5 @skip-ci', function () {
     bundleId: 'io.appium.TestApp',
     app: 'assets/TestApp7.1.app.zip'
   });
-  if (env.IOS8) {
+  if (env.IOS8 || env.IOS9) {
     newDesired.app = 'assets/TestApp8.app.zip';
   }
 

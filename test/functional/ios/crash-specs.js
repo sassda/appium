@@ -4,7 +4,7 @@ var setup = require("../common/setup-base")
   , _ = require("underscore")
   , getAppPath = require('../../helpers/app').getAppPath;
 
-describe('crash recovery', function () {
+describe('crash recovery @skip-real-device', function () {
   var driver;
   var desired = {
     app: getAppPath('TestApp')
@@ -17,7 +17,7 @@ describe('crash recovery', function () {
       .elementByAccessibilityId("Crash")
       .click()
       .then(function () {
-        return driver.sleep(10000);
+        return driver.sleep(30000);
       })
       .source() // will 404 because the session is gone
         .should.eventually.be.rejectedWith('6')
@@ -25,7 +25,7 @@ describe('crash recovery', function () {
   });
 });
 
-describe('crash commands', function () {
+describe('crash commands @skip-real-device', function () {
 
   var driver;
   var desired = {
@@ -48,4 +48,3 @@ describe('crash commands', function () {
     .nodeify(done);
   });
 });
-
